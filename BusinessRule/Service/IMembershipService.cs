@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using BusinessRule.Model;
 
-namespace BusinessRule.Model
+namespace BusinessRule.Service
 {
     public interface IMembershipService
     {

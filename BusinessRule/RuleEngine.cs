@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using BusinessRule.Model;
+using BusinessRule.Service;
 
 namespace BusinessRule
 {

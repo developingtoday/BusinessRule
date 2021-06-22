@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using BusinessRule.Model;
 
-namespace BusinessRule.Model
+namespace BusinessRule.Service
 {
     public class MailingService:IMailingService
     {

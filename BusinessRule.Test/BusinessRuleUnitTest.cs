@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using BusinessRule.Model;
+using BusinessRule.Service;
 using Xunit;
 
 namespace BusinessRule.Test
