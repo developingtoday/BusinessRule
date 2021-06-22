@@ -20,9 +20,13 @@ namespace BusinessRule.Test
                 Amount = 1000,
                 Product = phyiscalProduct
             };
-            var sut = new RuleEngine();
+
+            var packingService = new FakePackingSlipService();
+            var sut = new RuleEngine(packingService);
             var response = sut.Execute(payment);
-            Assert.True(response!=null);
+            Assert.True(response.IsValid);
+            var packSlips = packingService.GetPackingSlips();
+            Assert.Contains(packSlips, d =>d.RefId==phyiscalProduct.Id);
         }
 
         [Fact]
@@ -39,9 +43,11 @@ namespace BusinessRule.Test
                 Amount = 100,
                 Product = bookProduct
             };
-            var sut = new RuleEngine();
+            var packingService = new FakePackingSlipService();
+            var sut = new RuleEngine(packingService);
             var response = sut.Execute(payment);
-            Assert.True(response.Data.Count(a => a.RefId==guidProduct)==2);
+            Assert.True(response.IsValid);
+            Assert.True(packingService.GetPackingSlips().Count(a=>a.RefId==guidProduct)==2);
         }
 
     }

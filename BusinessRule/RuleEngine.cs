@@ -7,31 +7,30 @@ namespace BusinessRule
 {
     public class RuleEngine
     {
-        public Result<List<PackingSlip>> Execute<T>(Payment<T> payment) where T:Product
+        private readonly IPackingSlipService _packingSlipService;
+
+        public RuleEngine(IPackingSlipService packingSlipService)
+        {
+            _packingSlipService = packingSlipService;
+        }
+
+        public Result<bool> Execute<T>(Payment<T> payment) where T:Product
         {
             if (typeof(T) == typeof(PhysicalProduct))
             {
-                return new Result<List<PackingSlip>>()
-                {
-                    Data = new List<PackingSlip>()
-                    {
-                        new PackingSlip(payment.Product.Id)
-                    }
-                };
+               _packingSlipService.GeneratePackingSlip(payment.Product);
             }
 
             if (typeof(T) == typeof(BookProduct))
             {
-                return new Result<List<PackingSlip>>()
-                {
-                    Data = new List<PackingSlip>()
-                    {
-                        new PackingSlip(payment.Product.Id), new PackingSlip(payment.Product.Id)
-                    }
-                };
+                _packingSlipService.DuplicatePackingSlip(payment.Product);
             }
 
-            return null;
+            return new Result<bool>()
+            {
+                Data = true,
+                IsValid = true
+            };
         }
     }
 }
