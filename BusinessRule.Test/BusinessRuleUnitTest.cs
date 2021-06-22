@@ -9,10 +9,12 @@ namespace BusinessRule.Test
     {
         private readonly IPackingSlipService fakePackingSlip;
         private readonly IMembershipService fakeMembershipService;
+        private readonly IMailingService fakeMailingService;
         public BusinessRuleUnitTest()
         {
             fakePackingSlip = new FakePackingSlipService();
             fakeMembershipService = new FakeMembershipSerivce();
+            fakeMailingService = new MailingService();
         }
 
         [Fact]
@@ -30,7 +32,7 @@ namespace BusinessRule.Test
             };
 
             
-            var sut = new RuleEngine(fakePackingSlip,fakeMembershipService);
+            var sut = new RuleEngine(fakePackingSlip,fakeMembershipService,fakeMailingService);
             var response = sut.Execute(payment);
             Assert.True(response.IsValid);
             var packSlips = fakePackingSlip.GetPackingSlips();
@@ -51,7 +53,7 @@ namespace BusinessRule.Test
                 Amount = 100,
                 Product = bookProduct
             };
-            var sut = new RuleEngine(fakePackingSlip, fakeMembershipService);
+            var sut = new RuleEngine(fakePackingSlip, fakeMembershipService, fakeMailingService);
             var response = sut.Execute(payment);
             Assert.True(response.IsValid);
             Assert.True(fakePackingSlip.GetPackingSlips().Count(a=>a.RefId==guidProduct)==2);
@@ -62,8 +64,8 @@ namespace BusinessRule.Test
         {
             var membproduct = new MembershipProduct(MembershipTier.Bronze)
                 {Id = Guid.NewGuid(), Name = "Membership Prod 1"};
-           
-            var sut = new RuleEngine(fakePackingSlip, fakeMembershipService);
+
+            var sut = new RuleEngine(fakePackingSlip, fakeMembershipService, fakeMailingService);
             var response = sut.Execute(new Payment<MembershipProduct>()
             {
                 Amount = 100,
@@ -71,6 +73,7 @@ namespace BusinessRule.Test
             });
             Assert.True(response.IsValid);
             Assert.Contains(fakeMembershipService.GetMembershipProducts(), product => product.Id == membproduct.Id);
+            Assert.Contains(fakeMailingService.GetSentMailsSent(), mail => mail.Id == membproduct.Id);
         }
 
         [Fact]
@@ -79,7 +82,7 @@ namespace BusinessRule.Test
             var membproduct = new MembershipProduct(MembershipTier.Bronze)
                 { Id = Guid.NewGuid(), Name = "Membership Prod 1" };
             fakeMembershipService.ActivateMembership(membproduct);
-            var sut = new RuleEngine(fakePackingSlip, fakeMembershipService);
+            var sut = new RuleEngine(fakePackingSlip, fakeMembershipService, fakeMailingService);
             var response = sut.Execute(new Payment<UpgradeMembershipProduct>()
             {
                 Amount = 100,
@@ -88,6 +91,25 @@ namespace BusinessRule.Test
             Assert.True(response.IsValid);  
             Assert.Contains(fakeMembershipService.GetMembershipProducts(), product => product.Id == membproduct.Id && product.Tier==MembershipTier.Silver);
         }
+
+        [Fact]
+        public void WhenMemberShipProductUpgrade_Should_SendNotification()
+        {
+            var membproduct = new MembershipProduct(MembershipTier.Bronze)
+                { Id = Guid.NewGuid(), Name = "Membership Prod 1" };
+            fakeMembershipService.ActivateMembership(membproduct);
+            var sut = new RuleEngine(fakePackingSlip, fakeMembershipService, fakeMailingService);
+            var response = sut.Execute(new Payment<UpgradeMembershipProduct>()
+            {
+                Amount = 100,
+                Product = new UpgradeMembershipProduct() { Id = membproduct.Id }
+            });
+            Assert.True(response.IsValid);
+            Assert.Contains(fakeMembershipService.GetMembershipProducts(), product => product.Id == membproduct.Id && product.Tier == MembershipTier.Silver);
+            Assert.Contains(fakeMailingService.GetSentMailsSent(), mail => mail.Id == membproduct.Id);
+        }
+
+        
 
         public void Dispose()
         {

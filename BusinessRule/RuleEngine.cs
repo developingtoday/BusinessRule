@@ -7,16 +7,19 @@ namespace BusinessRule
 {
     public class RuleEngine
     {
-        public RuleEngine(IPackingSlipService packingSlipService, IMembershipService membershipService)
-        {
-            _packingSlipService = packingSlipService;
-            _membershipService = membershipService;
-        }
+
 
         private readonly IPackingSlipService _packingSlipService;
         private readonly IMembershipService _membershipService;
+        private readonly IMailingService _mailingService;
 
-        
+        public RuleEngine(IPackingSlipService packingSlipService, IMembershipService membershipService, IMailingService mailingService)
+        {
+            _packingSlipService = packingSlipService;
+            _membershipService = membershipService;
+            _mailingService = mailingService;
+        }
+
 
         public Result<bool> Execute<T>(Payment<T> payment) where T:Product
         {
@@ -33,11 +36,21 @@ namespace BusinessRule
             if (typeof(T) == typeof(MembershipProduct))
             {
                 _membershipService.ActivateMembership(payment.Product as MembershipProduct);
+                _mailingService.SendMail(new Mail()
+                {
+                    Id = payment.Product.Id,
+                    Msg = "An upgrade was made"
+                });
             }
 
             if (typeof(T) == typeof(UpgradeMembershipProduct))
             {
                 _membershipService.UpdgradeMembership(payment.Product.Id);
+                _mailingService.SendMail(new Mail()
+                {
+                    Id = payment.Product.Id,
+                    Msg = "An upgrade was made"
+                });
             }
 
             return new Result<bool>()
