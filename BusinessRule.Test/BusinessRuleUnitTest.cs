@@ -5,8 +5,16 @@ using Xunit;
 
 namespace BusinessRule.Test
 {
-    public class BusinessRuleUnitTest
+    public class BusinessRuleUnitTest:IDisposable
     {
+        private readonly IPackingSlipService fakePackingSlip;
+        private readonly IMembershipService fakeMembershipService;
+        public BusinessRuleUnitTest()
+        {
+            fakePackingSlip = new FakePackingSlipService();
+            fakeMembershipService = new FakeMembershipSerivce();
+        }
+
         [Fact]
         public void WhenPhysicalProduct_Should_GeneratePackingSlipForShipping()
         {
@@ -21,11 +29,11 @@ namespace BusinessRule.Test
                 Product = phyiscalProduct
             };
 
-            var packingService = new FakePackingSlipService();
-            var sut = new RuleEngine(packingService,new FakeMembershipSerivce());
+            
+            var sut = new RuleEngine(fakePackingSlip,fakeMembershipService);
             var response = sut.Execute(payment);
             Assert.True(response.IsValid);
-            var packSlips = packingService.GetPackingSlips();
+            var packSlips = fakePackingSlip.GetPackingSlips();
             Assert.Contains(packSlips, d =>d.RefId==phyiscalProduct.Id);
         }
 
@@ -43,11 +51,10 @@ namespace BusinessRule.Test
                 Amount = 100,
                 Product = bookProduct
             };
-            var packingService = new FakePackingSlipService();
-            var sut = new RuleEngine(packingService,new FakeMembershipSerivce());
+            var sut = new RuleEngine(fakePackingSlip, fakeMembershipService);
             var response = sut.Execute(payment);
             Assert.True(response.IsValid);
-            Assert.True(packingService.GetPackingSlips().Count(a=>a.RefId==guidProduct)==2);
+            Assert.True(fakePackingSlip.GetPackingSlips().Count(a=>a.RefId==guidProduct)==2);
         }
 
         [Fact]
@@ -55,16 +62,22 @@ namespace BusinessRule.Test
         {
             var membproduct = new MembershipProduct(MembershipTier.Bronze)
                 {Id = Guid.NewGuid(), Name = "Membership Prod 1"};
-            var memService = new FakeMembershipSerivce();
-            var sut = new RuleEngine(new FakePackingSlipService(), memService);
+           
+            var sut = new RuleEngine(fakePackingSlip, fakeMembershipService);
             var response = sut.Execute(new Payment<MembershipProduct>()
             {
                 Amount = 100,
                 Product = membproduct
             });
             Assert.True(response.IsValid);
-            Assert.Contains(memService.GetMembershipProducts(), product => product.Id == membproduct.Id);
+            Assert.Contains(fakeMembershipService.GetMembershipProducts(), product => product.Id == membproduct.Id);
         }
 
+        public void Dispose()
+        {
+            fakeMembershipService.GetMembershipProducts().Clear();
+            fakePackingSlip.GetPackingSlips().Clear();
+
+        }
     }
 }

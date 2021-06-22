@@ -8,7 +8,7 @@ namespace BusinessRule.Model
         private readonly List<PackingSlip> lst;
         public FakePackingSlipService()
         {
-            lst = new List<PackingSlip>(0);
+            lst = new List<PackingSlip>();
         }
 
         public void GeneratePackingSlip(Product product)
@@ -19,6 +19,12 @@ namespace BusinessRule.Model
         public void DuplicatePackingSlip(Product product)
         {
             var found=lst.Find(a => a.RefId == product.Id);
+            if (found == null)
+            {
+                found = new PackingSlip(product.Id);
+                lst.Add(found);
+                
+            }
             lst.Add(new PackingSlip(found.RefId));
         }
 
