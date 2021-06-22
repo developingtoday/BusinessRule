@@ -43,6 +43,19 @@ namespace BusinessRule
                 });
             }
 
+            if (typeof(T) == typeof(VideoProduct))
+            {
+                _packingSlipService.GeneratePackingSlip(payment.Product);
+                if (payment.Product.Name.Equals("Learning to Ski",StringComparison.InvariantCultureIgnoreCase))
+                {
+                    _packingSlipService.GeneratePackingSlip(new VideoProduct()
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = "First Aid"
+                    });
+                }
+            }
+
             if (typeof(T) == typeof(UpgradeMembershipProduct))
             {
                 _membershipService.UpdgradeMembership(payment.Product.Id);

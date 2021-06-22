@@ -13,7 +13,10 @@ namespace BusinessRule.Model
 
         public void GeneratePackingSlip(Product product)
         {
-            lst.Add(new PackingSlip(product.Id));
+            lst.Add(new PackingSlip(product.Id)
+            {
+                Name = product.Name
+            });
         }
 
         public void DuplicatePackingSlip(Product product)
@@ -21,11 +24,17 @@ namespace BusinessRule.Model
             var found=lst.Find(a => a.RefId == product.Id);
             if (found == null)
             {
-                found = new PackingSlip(product.Id);
+                found = new PackingSlip(product.Id)
+                {
+                    Name = product.Name
+                };
                 lst.Add(found);
                 
             }
-            lst.Add(new PackingSlip(found.RefId));
+            lst.Add(new PackingSlip(found.RefId)
+            {
+                Name = found.Name
+            });
         }
 
         public List<PackingSlip> GetPackingSlips()

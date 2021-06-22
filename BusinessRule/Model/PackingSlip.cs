@@ -12,6 +12,9 @@ namespace BusinessRule.Model
 
         public Guid RefId { get; private set; }
 
+        public string Name { get; set; }
+
+
         
 
     }

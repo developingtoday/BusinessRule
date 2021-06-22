@@ -109,6 +109,28 @@ namespace BusinessRule.Test
             Assert.Contains(fakeMailingService.GetSentMailsSent(), mail => mail.Id == membproduct.Id);
         }
 
+        [Fact]
+        public void WhenPaymentIsVideoLearningSki_Should_AddFirstAidInPackingSlip()
+        {
+            var physicalProduct = new VideoProduct()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Learning To Ski"
+            };
+            var payment = new Payment<VideoProduct>()
+            {
+                Amount = 1000,
+                Product = physicalProduct
+            };
+
+
+            var sut = new RuleEngine(fakePackingSlip, fakeMembershipService, fakeMailingService);
+            var response = sut.Execute(payment);
+            Assert.True(response.IsValid);
+            var packSlips = fakePackingSlip.GetPackingSlips();
+            Assert.Contains(packSlips, d => d.RefId == physicalProduct.Id);
+            Assert.Contains(packSlips, d => d.Name.Equals("First Aid",StringComparison.InvariantCultureIgnoreCase));
+        }
         
 
         public void Dispose()
