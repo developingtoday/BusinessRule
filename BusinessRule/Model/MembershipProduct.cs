@@ -7,6 +7,11 @@
             Tier = tier;
         }
 
+        public MembershipProduct()
+        {
+            Tier = MembershipTier.Bronze;
+        }
+
         public MembershipTier Tier { get; private set; }
 
         public void UpgradeTier()

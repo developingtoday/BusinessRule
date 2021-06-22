@@ -25,7 +25,7 @@ namespace BusinessRule.Test
         {
             var phyiscalProduct = new PhysicalProduct()
             {
-                Id = Guid.NewGuid(),
+                Id = Guid.NewGuid(),    
                 Name = "Physical Product No.1"
             };
             var payment = new Payment<PhysicalProduct>()

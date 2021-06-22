@@ -28,6 +28,7 @@ namespace BusinessRule.Model
 
     public class Payment<T> where T:Product
     {
+
         public T Product { get; set; }
 
         public decimal Amount { get; set; }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using BusinessRule.Logic;
 using BusinessRule.Model;
 using BusinessRule.Service;
 
@@ -8,15 +9,16 @@ namespace BusinessRule
 {
     public class RuleEngine
     {
-
-
         private readonly IPackingSlipService _packingSlipService;
         private readonly IMembershipService _membershipService;
         private readonly IMailingService _mailingService;
         private readonly IComissionPaymentService _comissionPaymentService;
 
+        private readonly Dictionary<Type, IExecute<Payment<Product>>> _holder =
+            new Dictionary<Type, IExecute<Payment<Product>>>();
 
-        public RuleEngine(IPackingSlipService packingSlipService, IMembershipService membershipService, IMailingService mailingService, IComissionPaymentService comissionPaymentService)
+        public RuleEngine(IPackingSlipService packingSlipService, IMembershipService membershipService,
+            IMailingService mailingService, IComissionPaymentService comissionPaymentService)
         {
             _packingSlipService = packingSlipService;
             _membershipService = membershipService;
@@ -24,52 +26,38 @@ namespace BusinessRule
             _comissionPaymentService = comissionPaymentService;
         }
 
-        public Result<bool> Execute<T>(Payment<T> payment) where T:Product
+   
+
+        public Result<bool> Execute<T>(Payment<T> payment) where T : Product
         {
             if (typeof(T) == typeof(PhysicalProduct))
             {
-               _packingSlipService.GeneratePackingSlip(payment.Product);
-               _comissionPaymentService.GenerateComissionPayment(payment.Product);
+                var rule = new PhysicalProductRule(_packingSlipService, _comissionPaymentService);
+                rule.DoStuff(payment as Payment<PhysicalProduct>);
             }
 
             if (typeof(T) == typeof(BookProduct))
             {
-                _packingSlipService.DuplicatePackingSlip(payment.Product);
-                _comissionPaymentService.GenerateComissionPayment(payment.Product);
-
+                var rule = new BookProductRule(_packingSlipService, _comissionPaymentService);
+                rule.DoStuff(payment as Payment<BookProduct>);
             }
 
             if (typeof(T) == typeof(MembershipProduct))
             {
-                _membershipService.ActivateMembership(payment.Product as MembershipProduct);
-                _mailingService.SendMail(new Mail()
-                {
-                    Id = payment.Product.Id,
-                    Msg = "An upgrade was made"
-                });
+                var rule = new MembershipProductRule(_membershipService, _mailingService);
+                rule.DoStuff(payment as Payment<MembershipProduct>);
             }
 
             if (typeof(T) == typeof(VideoProduct))
             {
-                _packingSlipService.GeneratePackingSlip(payment.Product);
-                if (payment.Product.Name.Equals("Learning to Ski",StringComparison.InvariantCultureIgnoreCase))
-                {
-                    _packingSlipService.GeneratePackingSlip(new VideoProduct()
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "First Aid"
-                    });
-                }
+                var rule = new VideoProductRule(_packingSlipService);
+                rule.DoStuff(payment as Payment<VideoProduct>);
             }
 
             if (typeof(T) == typeof(UpgradeMembershipProduct))
             {
-                _membershipService.UpdgradeMembership(payment.Product.Id);
-                _mailingService.SendMail(new Mail()
-                {
-                    Id = payment.Product.Id,
-                    Msg = "An upgrade was made"
-                });
+                var rule = new UpgradeMembershipProductRule(_membershipService, _mailingService);
+                rule.DoStuff(payment as Payment<UpgradeMembershipProduct>);
             }
 
             return new Result<bool>()
