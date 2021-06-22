@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace BusinessRule.Model
 {
@@ -6,7 +7,7 @@ namespace BusinessRule.Model
     {
         void ActivateMembership(MembershipProduct product);
 
-        void UpdgradeMembership(MembershipProduct product);
+        void UpdgradeMembership(Guid productId);
 
         List<MembershipProduct> GetMembershipProducts();
     }

@@ -24,4 +24,9 @@
             
         }
     }
+
+    public class UpgradeMembershipProduct : Product
+    {
+
+    }
 }

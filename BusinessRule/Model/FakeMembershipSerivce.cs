@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace BusinessRule.Model
 {
@@ -16,9 +17,9 @@ namespace BusinessRule.Model
             products.Add(product);
         }
 
-        public void UpdgradeMembership(MembershipProduct product)
+        public void UpdgradeMembership(Guid productId)
         {
-            var found = products.Find(a => a.Id == product.Id);
+            var found = products.Find(a =>productId==a.Id);
             found.UpgradeTier();
             
         }

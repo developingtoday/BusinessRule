@@ -35,6 +35,11 @@ namespace BusinessRule
                 _membershipService.ActivateMembership(payment.Product as MembershipProduct);
             }
 
+            if (typeof(T) == typeof(UpgradeMembershipProduct))
+            {
+                _membershipService.UpdgradeMembership(payment.Product.Id);
+            }
+
             return new Result<bool>()
             {
                 Data = true,

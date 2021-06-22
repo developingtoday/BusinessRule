@@ -73,6 +73,22 @@ namespace BusinessRule.Test
             Assert.Contains(fakeMembershipService.GetMembershipProducts(), product => product.Id == membproduct.Id);
         }
 
+        [Fact]
+        public void WhenMemberShipProductUpgrade_Should_ApplyUpgrade()
+        {
+            var membproduct = new MembershipProduct(MembershipTier.Bronze)
+                { Id = Guid.NewGuid(), Name = "Membership Prod 1" };
+            fakeMembershipService.ActivateMembership(membproduct);
+            var sut = new RuleEngine(fakePackingSlip, fakeMembershipService);
+            var response = sut.Execute(new Payment<UpgradeMembershipProduct>()
+            {
+                Amount = 100,
+                Product = new UpgradeMembershipProduct(){Id = membproduct.Id}
+            });
+            Assert.True(response.IsValid);  
+            Assert.Contains(fakeMembershipService.GetMembershipProducts(), product => product.Id == membproduct.Id && product.Tier==MembershipTier.Silver);
+        }
+
         public void Dispose()
         {
             fakeMembershipService.GetMembershipProducts().Clear();
