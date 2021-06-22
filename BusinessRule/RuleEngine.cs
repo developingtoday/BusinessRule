@@ -14,8 +14,7 @@ namespace BusinessRule
         private readonly IMailingService _mailingService;
         private readonly IComissionPaymentService _comissionPaymentService;
 
-        private readonly Dictionary<Type, IExecute<Payment<Product>>> _holder =
-            new Dictionary<Type, IExecute<Payment<Product>>>();
+  
 
         public RuleEngine(IPackingSlipService packingSlipService, IMembershipService membershipService,
             IMailingService mailingService, IComissionPaymentService comissionPaymentService)
