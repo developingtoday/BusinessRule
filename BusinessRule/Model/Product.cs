@@ -16,6 +16,11 @@ namespace BusinessRule.Model
 
     }
 
+    public class BookProduct:Product
+    {
+        
+    }
+
     public class Payment<T> where T:Product
     {
         public T Product { get; set; }

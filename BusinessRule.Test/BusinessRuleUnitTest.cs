@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using BusinessRule.Model;
 using Xunit;
 
@@ -23,5 +24,25 @@ namespace BusinessRule.Test
             var response = sut.Execute(payment);
             Assert.True(response!=null);
         }
+
+        [Fact]
+        public void WhenBookProduct_Should_CreateADuplicatePackingSlip()
+        {
+            var guidProduct = Guid.NewGuid();
+            var bookProduct = new BookProduct()
+            {
+                Id = guidProduct,
+                Name = "Book Product No.1"
+            };
+            var payment = new Payment<BookProduct>()
+            {
+                Amount = 100,
+                Product = bookProduct
+            };
+            var sut = new RuleEngine();
+            var response = sut.Execute(payment);
+            Assert.True(response.Data.Count(a => a.RefId==guidProduct)==2);
+        }
+
     }
 }
