@@ -16,7 +16,7 @@ namespace BusinessRule.Logic
 
         public void DoStuff(Payment<MembershipProduct> message)
         {
-            _membershipService.ActivateMembership(message.Product as MembershipProduct);
+            _membershipService.ActivateMembership(message.Product);
             _mailingService.SendMail(new Mail()
             {
                 Id = message.Product.Id,

@@ -6,15 +6,15 @@ namespace BusinessRule.Service
     public class FakePackingSlipService : IPackingSlipService
     {
 
-        private readonly List<PackingSlip> lst;
+        private readonly List<PackingSlip> _lst;
         public FakePackingSlipService()
         {
-            lst = new List<PackingSlip>();
+            _lst = new List<PackingSlip>();
         }
 
         public void GeneratePackingSlip(Product product)
         {
-            lst.Add(new PackingSlip(product.Id)
+            _lst.Add(new PackingSlip(product.Id)
             {
                 Name = product.Name
             });
@@ -22,17 +22,17 @@ namespace BusinessRule.Service
 
         public void DuplicatePackingSlip(Product product)
         {
-            var found=lst.Find(a => a.RefId == product.Id);
+            var found=_lst.Find(a => a.RefId == product.Id);
             if (found == null)
             {
                 found = new PackingSlip(product.Id)
                 {
                     Name = product.Name
                 };
-                lst.Add(found);
+                _lst.Add(found);
                 
             }
-            lst.Add(new PackingSlip(found.RefId)
+            _lst.Add(new PackingSlip(found.RefId)
             {
                 Name = found.Name
             });
@@ -40,7 +40,7 @@ namespace BusinessRule.Service
 
         public List<PackingSlip> GetPackingSlips()
         {
-            return lst;
+            return _lst;
         }
     }
 }

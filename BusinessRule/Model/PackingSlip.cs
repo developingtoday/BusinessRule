@@ -10,7 +10,7 @@ namespace BusinessRule.Model
             RefId = refId;
         }
 
-        public Guid RefId { get; private set; }
+        public Guid RefId { get; }
 
         public string Name { get; set; }
 

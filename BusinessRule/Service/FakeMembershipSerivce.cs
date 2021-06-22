@@ -6,28 +6,28 @@ namespace BusinessRule.Service
 {
     public class FakeMembershipSerivce: IMembershipService
     {
-        private readonly List<MembershipProduct> products;
+        private readonly List<MembershipProduct> _products;
 
         public FakeMembershipSerivce()
         {
-            products = new List<MembershipProduct>();
+            _products = new List<MembershipProduct>();
         }
 
         public void ActivateMembership(MembershipProduct product)
         {
-            products.Add(product);
+            _products.Add(product);
         }
 
         public void UpdgradeMembership(Guid productId)
         {
-            var found = products.Find(a =>productId==a.Id);
+            var found = _products.Find(a =>productId==a.Id);
             found.UpgradeTier();
             
         }
 
         public List<MembershipProduct> GetMembershipProducts()
         {
-            return products;
+            return _products;
         }
     }
 }
