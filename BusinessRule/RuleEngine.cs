@@ -12,25 +12,30 @@ namespace BusinessRule
         private readonly IPackingSlipService _packingSlipService;
         private readonly IMembershipService _membershipService;
         private readonly IMailingService _mailingService;
+        private readonly IComissionPaymentService _comissionPaymentService;
 
-        public RuleEngine(IPackingSlipService packingSlipService, IMembershipService membershipService, IMailingService mailingService)
+
+        public RuleEngine(IPackingSlipService packingSlipService, IMembershipService membershipService, IMailingService mailingService, IComissionPaymentService comissionPaymentService)
         {
             _packingSlipService = packingSlipService;
             _membershipService = membershipService;
             _mailingService = mailingService;
+            _comissionPaymentService = comissionPaymentService;
         }
-
 
         public Result<bool> Execute<T>(Payment<T> payment) where T:Product
         {
             if (typeof(T) == typeof(PhysicalProduct))
             {
                _packingSlipService.GeneratePackingSlip(payment.Product);
+               _comissionPaymentService.GenerateComissionPayment(payment.Product);
             }
 
             if (typeof(T) == typeof(BookProduct))
             {
                 _packingSlipService.DuplicatePackingSlip(payment.Product);
+                _comissionPaymentService.GenerateComissionPayment(payment.Product);
+
             }
 
             if (typeof(T) == typeof(MembershipProduct))
