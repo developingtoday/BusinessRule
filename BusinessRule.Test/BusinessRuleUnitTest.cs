@@ -22,7 +22,7 @@ namespace BusinessRule.Test
             };
 
             var packingService = new FakePackingSlipService();
-            var sut = new RuleEngine(packingService);
+            var sut = new RuleEngine(packingService,new FakeMembershipSerivce());
             var response = sut.Execute(payment);
             Assert.True(response.IsValid);
             var packSlips = packingService.GetPackingSlips();
@@ -44,10 +44,26 @@ namespace BusinessRule.Test
                 Product = bookProduct
             };
             var packingService = new FakePackingSlipService();
-            var sut = new RuleEngine(packingService);
+            var sut = new RuleEngine(packingService,new FakeMembershipSerivce());
             var response = sut.Execute(payment);
             Assert.True(response.IsValid);
             Assert.True(packingService.GetPackingSlips().Count(a=>a.RefId==guidProduct)==2);
+        }
+
+        [Fact]
+        public void WhenMemberShipProduct_Should_ActivateThatMembership()
+        {
+            var membproduct = new MembershipProduct(MembershipTier.Bronze)
+                {Id = Guid.NewGuid(), Name = "Membership Prod 1"};
+            var memService = new FakeMembershipSerivce();
+            var sut = new RuleEngine(new FakePackingSlipService(), memService);
+            var response = sut.Execute(new Payment<MembershipProduct>()
+            {
+                Amount = 100,
+                Product = membproduct
+            });
+            Assert.True(response.IsValid);
+            Assert.Contains(memService.GetMembershipProducts(), product => product.Id == membproduct.Id);
         }
 
     }
